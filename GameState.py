@@ -29,15 +29,20 @@ class GameState:
             if not a.can_pop():
                 continue
             
-            # Don't make moves that remove balls from containers with 3/4 balls with the same color
-            if (len(a) == 3 or len(a) == 4) and len(set(a)) == 1:
+            # Don't make moves that remove balls from containers with 3 or 4 balls with the same color
+            if len(set(a)) == 1 and len(a) in [3, 4]:
                 continue
             
             ball = a.get_top_ball()
             
             for j, b in enumerate(self.containers):
                 
+                # Don't make moves that keep balls in the same container
                 if i == j:
+                    continue
+                
+                # Don't make moves that move balls fron single colored containers into empty containers
+                if len(set(a)) == 1 and len(a) in [1, 2] and len(b) == 0:
                     continue
                 
                 if b.can_put(ball):
@@ -55,3 +60,6 @@ class GameState:
         containers = deepcopy(self).containers
         containers.sort(key=lambda x: x)
         return hash(tuple(containers))
+    
+    def __eq__(self, other) -> bool:
+        return hash(self) == hash(other)
